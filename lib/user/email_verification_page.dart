@@ -1,9 +1,11 @@
 // email_verification_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'registration_success_page.dart';
 import 'user_login_page.dart';
+import '../admin/admin_login_page.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   final String email;
@@ -31,6 +33,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   int _resendCountdown = 60;
   Timer? _countdownTimer;
   Timer? _verificationCheckTimer;
+  String _statusMessage = 'Waiting for email verification...';
+  bool _isChecking = false;
 
   @override
   void initState() {
@@ -74,11 +78,24 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   }
 
   Future<void> _checkEmailVerification() async {
+    if (_isChecking) return; // Prevent concurrent checks
+    
+    setState(() {
+      _isChecking = true;
+      _statusMessage = 'Checking verification status...';
+    });
+
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         // If no currentUser, nothing to check here. User may have signed out; ask them to sign in.
         debugPrint('EmailVerificationPage: no current user while checking verification.');
+        if (mounted) {
+          setState(() {
+            _statusMessage = 'No user session found. Please sign in again.';
+            _isChecking = false;
+          });
+        }
         return;
       }
 
@@ -87,18 +104,70 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
       if (user != null && user.emailVerified) {
         _verificationCheckTimer?.cancel();
+        
+        if (mounted) {
+          setState(() {
+            _statusMessage = 'Email verified! Redirecting...';
+          });
+        }
 
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const RegistrationSuccessPage(),
-          ),
-        );
+        // Check user role to navigate to appropriate page
+        try {
+          DocumentSnapshot userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+          
+          String role = userDoc.exists ? (userDoc.get('role') ?? 'user') : 'user';
+          
+          if (!mounted) return;
+          
+          if (role == 'admin') {
+            // For admin, navigate to admin login page
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AdminLoginPage(),
+              ),
+              (route) => false,
+            );
+          } else {
+            // For regular users, navigate to success page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RegistrationSuccessPage(),
+              ),
+            );
+          }
+        } catch (e) {
+          debugPrint('Error checking user role: $e');
+          // Default to user success page if error
+          if (!mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const RegistrationSuccessPage(),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _statusMessage = 'Email not verified yet. Please check your inbox.';
+            _isChecking = false;
+          });
+        }
       }
     } catch (e, st) {
       debugPrint('Error checking verification: $e');
       debugPrintStack(stackTrace: st);
+      if (mounted) {
+        setState(() {
+          _statusMessage = 'Error checking verification. Please try again.';
+          _isChecking = false;
+        });
+      }
     }
   }
 
@@ -172,13 +241,46 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
       user = FirebaseAuth.instance.currentUser;
 
       if (user != null && user.emailVerified) {
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const RegistrationSuccessPage(),
-          ),
-        );
+        // Check user role to navigate to appropriate page
+        try {
+          DocumentSnapshot userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+          
+          String role = userDoc.exists ? (userDoc.get('role') ?? 'user') : 'user';
+          
+          if (!mounted) return;
+          
+          if (role == 'admin') {
+            // For admin, navigate to admin login page
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AdminLoginPage(),
+              ),
+              (route) => false,
+            );
+          } else {
+            // For regular users, navigate to success page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RegistrationSuccessPage(),
+              ),
+            );
+          }
+        } catch (e) {
+          debugPrint('Error checking user role: $e');
+          // Default to user success page if error
+          if (!mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const RegistrationSuccessPage(),
+            ),
+          );
+        }
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -336,6 +438,46 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                         fontStyle: FontStyle.italic,
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    // Status indicator
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: _isChecking ? Colors.blue.shade50 : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_isChecking)
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                              ),
+                            )
+                          else
+                            Icon(
+                              Icons.access_time,
+                              size: 16,
+                              color: Colors.grey.shade600,
+                            ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              _statusMessage,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
