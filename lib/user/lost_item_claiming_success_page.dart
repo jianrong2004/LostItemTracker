@@ -2,21 +2,21 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'user_home_page.dart';
 
-class FoundItemReportingSuccessPage extends StatefulWidget {
-  final String reportId;
+class LostItemClaimingSuccessPage extends StatefulWidget {
+  final String claimId;
 
-  const FoundItemReportingSuccessPage({
+  const LostItemClaimingSuccessPage({
     super.key,
-    required this.reportId,
+    required this.claimId,
   });
 
   @override
-  State<FoundItemReportingSuccessPage> createState() =>
-      _FoundItemReportingSuccessPageState();
+  State<LostItemClaimingSuccessPage> createState() =>
+      _LostItemClaimingSuccessPageState();
 }
 
-class _FoundItemReportingSuccessPageState
-    extends State<FoundItemReportingSuccessPage>
+class _LostItemClaimingSuccessPageState
+    extends State<LostItemClaimingSuccessPage>
     with SingleTickerProviderStateMixin {
   Timer? _countdownTimer;
   int _secondsRemaining = 60;
@@ -100,7 +100,7 @@ class _FoundItemReportingSuccessPageState
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.blue.shade50,
+                Colors.green.shade50,
                 Colors.white,
               ],
             ),
@@ -111,7 +111,8 @@ class _FoundItemReportingSuccessPageState
               child: SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight: (screenHeight - paddingVertical).clamp(0.0, double.infinity),
+                    minHeight: (screenHeight - paddingVertical)
+                        .clamp(0.0, double.infinity),
                   ),
                   child: IntrinsicHeight(
                     child: Column(
@@ -125,20 +126,20 @@ class _FoundItemReportingSuccessPageState
                             width: 100,
                             height: 100,
                             decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
+                              color: Colors.green.shade100,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.blue.withOpacity(0.3),
+                                  color: Colors.green.withOpacity(0.3),
                                   blurRadius: 30,
                                   offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
                             child: Icon(
-                              Icons.volunteer_activism,
+                              Icons.check_circle,
                               size: 58,
-                              color: Colors.blue.shade600,
+                              color: Colors.green.shade600,
                             ),
                           ),
                         ),
@@ -147,11 +148,11 @@ class _FoundItemReportingSuccessPageState
 
                         // Success Title
                         Text(
-                          'Report Submitted Successfully!',
+                          'Claim Submitted Successfully!',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
+                            color: Colors.green.shade700,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -160,7 +161,7 @@ class _FoundItemReportingSuccessPageState
 
                         // Success Message
                         Text(
-                          'Your found item report has been submitted successfully.',
+                          'Your claim has been submitted successfully.',
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey.shade700,
@@ -171,7 +172,7 @@ class _FoundItemReportingSuccessPageState
                         const SizedBox(height: 6),
 
                         Text(
-                          'We will notify you when the owner claims their item.',
+                          'We will review your claim and notify you of the verification status.',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -181,7 +182,7 @@ class _FoundItemReportingSuccessPageState
 
                         const SizedBox(height: 20),
 
-                        // Report ID Card
+                        // Claim ID Card
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
@@ -205,7 +206,7 @@ class _FoundItemReportingSuccessPageState
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Report ID',
+                                    'Claim ID',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -216,7 +217,7 @@ class _FoundItemReportingSuccessPageState
                               ),
                               const SizedBox(height: 10),
                               SelectableText(
-                                widget.reportId,
+                                widget.claimId,
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -261,30 +262,30 @@ class _FoundItemReportingSuccessPageState
 
                         const SizedBox(height: 20),
 
-                        // Thank You Note
+                        // Next Steps Note
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.green.shade50,
+                            color: Colors.blue.shade50,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.green.shade200,
+                              color: Colors.blue.shade200,
                             ),
                           ),
                           child: Row(
                             children: [
                               Icon(
-                                Icons.favorite,
-                                color: Colors.green.shade600,
+                                Icons.info,
+                                color: Colors.blue.shade600,
                                 size: 20,
                               ),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Thank you for helping reunite lost items with their owners! Your kindness makes a difference, please drop off any found items at the drop-off desk as soon as possible.',
+                                  'Next Steps: Please bring your Identity Card and Campus ID when picking up the item at the scheduled time. You will be notified once your claim is verified.',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.green.shade800,
+                                    color: Colors.blue.shade800,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),

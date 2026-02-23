@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'admin_login_page.dart';
+import 'admin_item_management_page.dart';
+import 'admin_claim_verification_page.dart';
+import 'admin_category_management_page.dart';
+import 'admin_location_management_page.dart';
+import 'admin_reports_analytics_page.dart';
+import 'admin_report_export_page.dart';
+import 'admin_profile_page.dart';
+import 'admin_reward_management_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -51,12 +59,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
     try {
       // Get total lost items
       QuerySnapshot lostItems = await FirebaseFirestore.instance
-          .collection('lost_items')
+          .collection('lost_item_reports')
           .get();
       
       // Get total found items
       QuerySnapshot foundItems = await FirebaseFirestore.instance
-          .collection('found_items')
+          .collection('found_item_reports')
           .get();
       
       // Get total users
@@ -65,15 +73,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
           .where('role', isEqualTo: 'user')
           .get();
 
-      // Count resolved items (items with status 'resolved' or 'matched')
+      // Count resolved items (reportStatus 'resolved' or 'matched')
       int resolved = 0;
       for (var doc in lostItems.docs) {
-        if (doc.get('status') == 'resolved' || doc.get('status') == 'matched') {
+        final status = doc.get('reportStatus') ?? doc.get('status');
+        if (status == 'resolved' || status == 'matched') {
           resolved++;
         }
       }
       for (var doc in foundItems.docs) {
-        if (doc.get('status') == 'resolved' || doc.get('status') == 'matched') {
+        final status = doc.get('reportStatus') ?? doc.get('status');
+        if (status == 'resolved' || status == 'matched') {
           resolved++;
         }
       }
@@ -172,7 +182,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
         ],
       ),
       endDrawer: _buildAccountDrawer(),
-      body: RefreshIndicator(
+      body: SizedBox(
+        width: double.infinity,
+        child: RefreshIndicator(
         onRefresh: () async {
           await _loadAdminData();
           await _loadStatistics();
@@ -324,20 +336,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   children: [
                     Expanded(
                       child: _buildActionCard(
-                        icon: Icons.search_off,
-                        title: 'Manage Lost Items',
-                        color: Colors.red.shade400,
+                        icon: Icons.inventory_2_outlined,
+                        title: 'Item Management',
+                        color: Colors.indigo.shade400,
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Manage Lost Items feature coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                                bottom: 1,
-                              ),
-                              duration: Duration(seconds: 2),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminItemManagementPage(),
                             ),
                           );
                         },
@@ -346,20 +352,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildActionCard(
-                        icon: Icons.find_in_page,
-                        title: 'Manage Found Items',
-                        color: Colors.green.shade400,
+                        icon: Icons.verified_user_outlined,
+                        title: 'Claim Verification',
+                        color: Colors.orange.shade400,
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Manage Found Items feature coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                                bottom: 1,
-                              ),
-                              duration: Duration(seconds: 2),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminClaimVerificationPage(),
                             ),
                           );
                         },
@@ -374,20 +374,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   children: [
                     Expanded(
                       child: _buildActionCard(
-                        icon: Icons.people_outline,
-                        title: 'Manage Users',
-                        color: Colors.blue.shade400,
+                        icon: Icons.category_outlined,
+                        title: 'Category Management',
+                        color: Colors.teal.shade400,
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Manage Users feature coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                                bottom: 1,
-                              ),
-                              duration: Duration(seconds: 2),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminCategoryManagementPage(),
                             ),
                           );
                         },
@@ -396,20 +390,68 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildActionCard(
-                        icon: Icons.analytics,
-                        title: 'Analytics',
+                        icon: Icons.place_outlined,
+                        title: 'Location Management',
+                        color: Colors.green.shade400,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminLocationManagementPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionCard(
+                        icon: Icons.card_giftcard,
+                        title: 'Reward Management',
+                        color: Colors.amber.shade600,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminRewardManagementPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildActionCard(
+                        icon: Icons.analytics_outlined,
+                        title: 'Reports & Analytics',
                         color: Colors.purple.shade400,
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Analytics feature coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                                bottom: 1,
-                              ),
-                              duration: Duration(seconds: 2),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminReportsAnalyticsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildActionCard(
+                        icon: Icons.download_outlined,
+                        title: 'Export Report',
+                        color: Colors.blue.shade400,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminReportExportPage(),
                             ),
                           );
                         },
@@ -476,6 +518,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
@@ -556,36 +599,72 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
                   _buildDrawerMenuItem(
+                    icon: Icons.person_outline,
+                    title: 'Profile',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminProfilePage()));
+                    },
+                  ),
+                  _buildDrawerMenuItem(
                     icon: Icons.dashboard,
                     title: 'Dashboard',
+                    onTap: () => Navigator.pop(context),
+                  ),
+                  _buildDrawerMenuItem(
+                    icon: Icons.inventory_2_outlined,
+                    title: 'Item Management',
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminItemManagementPage()));
                     },
                   ),
                   _buildDrawerMenuItem(
-                    icon: Icons.settings_outlined,
-                    title: 'Settings',
+                    icon: Icons.verified_user_outlined,
+                    title: 'Claim Verification',
                     onTap: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Settings page coming soon'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminClaimVerificationPage()));
                     },
                   ),
                   _buildDrawerMenuItem(
-                    icon: Icons.help_outline,
-                    title: 'Help & Support',
+                    icon: Icons.category_outlined,
+                    title: 'Category Management',
                     onTap: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Help & Support page coming soon'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminCategoryManagementPage()));
+                    },
+                  ),
+                  _buildDrawerMenuItem(
+                    icon: Icons.place_outlined,
+                    title: 'Location Management',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLocationManagementPage()));
+                    },
+                  ),
+                  _buildDrawerMenuItem(
+                    icon: Icons.card_giftcard,
+                    title: 'Reward Management',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminRewardManagementPage()));
+                    },
+                  ),
+                  _buildDrawerMenuItem(
+                    icon: Icons.analytics_outlined,
+                    title: 'Reports & Analytics',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReportsAnalyticsPage()));
+                    },
+                  ),
+                  _buildDrawerMenuItem(
+                    icon: Icons.download_outlined,
+                    title: 'Export Report',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReportExportPage()));
                     },
                   ),
                 ],
