@@ -81,16 +81,26 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
     return buffer.toString();
   }
 
+  Future<Directory> _getSaveDirectory() async {
+    final dir = await getDownloadsDirectory();
+    if (dir != null) return dir;
+    return getApplicationDocumentsDirectory();
+  }
+
   Future<void> _downloadCsv() async {
     try {
       final csv = await _exportCsv();
-      final dir = await getTemporaryDirectory();
+      final dir = await _getSaveDirectory();
+      if (!await dir.exists()) await dir.create(recursive: true);
       final name = 'report_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.csv';
       final file = File('${dir.path}/$name');
       await file.writeAsString(csv);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('CSV saved: ${file.path}'), behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('CSV saved to Downloads: $name'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
@@ -140,13 +150,17 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
         ),
       );
       final bytes = await pdf.save();
-      final dir = await getTemporaryDirectory();
+      final dir = await _getSaveDirectory();
+      if (!await dir.exists()) await dir.create(recursive: true);
       final name = 'report_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.pdf';
       final file = File('${dir.path}/$name');
       await file.writeAsBytes(bytes);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('PDF saved: ${file.path}'), behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('PDF saved to Downloads: $name'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
