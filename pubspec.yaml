@@ -48,6 +48,7 @@ dependencies:
   share_plus: ^10.0.0
   screenshot: ^3.0.0
   path_provider: ^2.1.0
+  downloadsfolder: ^1.2.0
   google_mlkit_barcode_scanning: ^0.13.0
   gal: ^2.3.0
   fl_chart: ^0.69.0

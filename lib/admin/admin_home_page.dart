@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'admin_login_page.dart';
+import '../role_selection_page.dart';
 import 'admin_item_management_page.dart';
 import 'admin_item_detail_page.dart';
 import 'admin_claim_verification_page.dart';
@@ -197,7 +197,7 @@ class _AdminHomePageState extends State<AdminHomePage>
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AdminLoginPage(),
+                  builder: (context) => const RoleSelectionPage(),
                 ),
                 (route) => false,
               );

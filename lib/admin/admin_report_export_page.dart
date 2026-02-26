@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import 'package:downloadsfolder/downloadsfolder.dart' as downloads;
 import 'dart:io';
 
 class AdminReportExportPage extends StatefulWidget {
@@ -81,32 +82,37 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
     return buffer.toString();
   }
 
-  Future<Directory> _getSaveDirectory() async {
-    final dir = await getDownloadsDirectory();
-    if (dir != null) return dir;
-    return getApplicationDocumentsDirectory();
-  }
-
   Future<void> _downloadCsv() async {
     try {
       final csv = await _exportCsv();
-      final dir = await _getSaveDirectory();
-      if (!await dir.exists()) await dir.create(recursive: true);
+      final dir = await getTemporaryDirectory();
       final name = 'report_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.csv';
-      final file = File('${dir.path}/$name');
-      await file.writeAsString(csv);
+      final tempFile = File('${dir.path}/$name');
+      await tempFile.writeAsString(csv);
+
+      final success = await downloads.copyFileIntoDownloadFolder(tempFile.path, name);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('CSV saved to Downloads: $name'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (success == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('CSV saved to Downloads: $name'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to save CSV to Downloads'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
         );
       }
     }
@@ -150,18 +156,29 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
         ),
       );
       final bytes = await pdf.save();
-      final dir = await _getSaveDirectory();
-      if (!await dir.exists()) await dir.create(recursive: true);
+      final dir = await getTemporaryDirectory();
       final name = 'report_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.pdf';
-      final file = File('${dir.path}/$name');
-      await file.writeAsBytes(bytes);
+      final tempFile = File('${dir.path}/$name');
+      await tempFile.writeAsBytes(bytes);
+
+      final success = await downloads.copyFileIntoDownloadFolder(tempFile.path, name);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('PDF saved to Downloads: $name'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (success == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('PDF saved to Downloads: $name'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to save PDF to Downloads'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
