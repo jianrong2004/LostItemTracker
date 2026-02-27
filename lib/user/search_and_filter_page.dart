@@ -39,10 +39,7 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
     'Documents',
     'Keys',
     'Bags',
-    'Books',
-    'Wallets',
-    'Phones',
-    'Laptops',
+    'Cards',
     'Others',
   ];
 
@@ -136,16 +133,20 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
       results.sort((a, b) {
         if (_timeSortOption == 'latest') {
           if (a.createdAt == null && b.createdAt == null) {
-          } else if (a.createdAt == null) return 1;
-          else if (b.createdAt == null) return -1;
+          } else if (a.createdAt == null)
+            return 1;
+          else if (b.createdAt == null)
+            return -1;
           else {
             final timeCompare = b.createdAt!.compareTo(a.createdAt!);
             if (timeCompare != 0) return timeCompare;
           }
         } else if (_timeSortOption == 'oldest') {
           if (a.createdAt == null && b.createdAt == null) {
-          } else if (a.createdAt == null) return 1;
-          else if (b.createdAt == null) return -1;
+          } else if (a.createdAt == null)
+            return 1;
+          else if (b.createdAt == null)
+            return -1;
           else {
             final timeCompare = a.createdAt!.compareTo(b.createdAt!);
             if (timeCompare != 0) return timeCompare;
@@ -168,9 +169,9 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
   }
 
   Future<List<_SearchResultItem>> _searchInCollection(
-      String collectionName,
-      String reportType,
-      ) async {
+    String collectionName,
+    String reportType,
+  ) async {
     Query query = FirebaseFirestore.instance
         .collection(collectionName)
         .where('reportStatus', isEqualTo: 'submitted')
@@ -185,7 +186,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
     if (_startDate != null && _endDate != null) {
       final dateField = reportType == 'lost' ? 'lostDateTime' : 'foundDateTime';
       query = query
-          .where(dateField, isGreaterThanOrEqualTo: Timestamp.fromDate(_startDate!))
+          .where(
+            dateField,
+            isGreaterThanOrEqualTo: Timestamp.fromDate(_startDate!),
+          )
           .where(dateField, isLessThanOrEqualTo: Timestamp.fromDate(_endDate!));
     }
 
@@ -204,8 +208,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
       // Text search filter
       if (searchTerm.isNotEmpty) {
         final itemName = (data['itemName'] as String? ?? '').toLowerCase();
-        final itemDescription = (data['itemDescription'] as String? ?? '').toLowerCase();
-        final locationDescription = (data['locationDescription'] as String? ?? '').toLowerCase();
+        final itemDescription =
+            (data['itemDescription'] as String? ?? '').toLowerCase();
+        final locationDescription =
+            (data['locationDescription'] as String? ?? '').toLowerCase();
 
         if (!itemName.contains(searchTerm) &&
             !itemDescription.contains(searchTerm) &&
@@ -223,18 +229,22 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
         } else if (thumbnailBytesData is Blob) {
           thumbnailBytes = thumbnailBytesData.bytes;
         } else if (thumbnailBytesData is List) {
-          thumbnailBytes = Uint8List.fromList(List<int>.from(thumbnailBytesData));
+          thumbnailBytes = Uint8List.fromList(
+            List<int>.from(thumbnailBytesData),
+          );
         }
       }
 
-      results.add(_SearchResultItem(
-        reportId: doc.id,
-        reportType: reportType,
-        itemName: data['itemName'] as String? ?? 'Untitled',
-        category: data['category'] as String? ?? 'Unknown',
-        thumbnailBytes: thumbnailBytes,
-        createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
-      ));
+      results.add(
+        _SearchResultItem(
+          reportId: doc.id,
+          reportType: reportType,
+          itemName: data['itemName'] as String? ?? 'Untitled',
+          category: data['category'] as String? ?? 'Unknown',
+          thumbnailBytes: thumbnailBytes,
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+        ),
+      );
 
       processedCount++;
       if (processedCount % 10 == 0) {
@@ -250,9 +260,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
       context: context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      initialDateRange: _startDate != null && _endDate != null
-          ? DateTimeRange(start: _startDate!, end: _endDate!)
-          : null,
+      initialDateRange:
+          _startDate != null && _endDate != null
+              ? DateTimeRange(start: _startDate!, end: _endDate!)
+              : null,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -352,16 +363,17 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
             decoration: InputDecoration(
               hintText: 'Search by name, description, or location...',
               prefixIcon: Icon(Icons.search, color: Colors.indigo.shade700),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  setState(() {
-                    _searchController.clear();
-                  });
-                },
-              )
-                  : null,
+              suffixIcon:
+                  _searchController.text.isNotEmpty
+                      ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                          });
+                        },
+                      )
+                      : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.grey.shade300),
@@ -385,17 +397,23 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: _isSearching ? null : () => _performSearch(isNewSearch: true),
-                  icon: _isSearching
-                      ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                      : const Icon(Icons.search),
+                  onPressed:
+                      _isSearching
+                          ? null
+                          : () => _performSearch(isNewSearch: true),
+                  icon:
+                      _isSearching
+                          ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : const Icon(Icons.search),
                   label: Text(_isSearching ? 'Searching...' : 'Search'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo.shade700,
@@ -423,7 +441,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                   style: TextStyle(color: Colors.indigo.shade700),
                 ),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
+                  ),
                   side: BorderSide(color: Colors.indigo.shade700),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -496,7 +517,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                                 ),
                                 const Spacer(),
                                 IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                  ),
                                   onPressed: () {
                                     setState(() {
                                       _isFilterExpanded = false;
@@ -546,28 +570,33 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _allCategories.map((category) {
-            final isSelected = _selectedCategories.contains(category);
-            return FilterChip(
-              label: Text(category),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedCategories.add(category);
-                  } else {
-                    _selectedCategories.remove(category);
-                  }
-                });
-              },
-              selectedColor: Colors.indigo.shade100,
-              checkmarkColor: Colors.indigo.shade700,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.indigo.shade700 : Colors.grey.shade700,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            );
-          }).toList(),
+          children:
+              _allCategories.map((category) {
+                final isSelected = _selectedCategories.contains(category);
+                return FilterChip(
+                  label: Text(category),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _selectedCategories.add(category);
+                      } else {
+                        _selectedCategories.remove(category);
+                      }
+                    });
+                  },
+                  selectedColor: Colors.indigo.shade100,
+                  checkmarkColor: Colors.indigo.shade700,
+                  labelStyle: TextStyle(
+                    color:
+                        isSelected
+                            ? Colors.indigo.shade700
+                            : Colors.grey.shade700,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                );
+              }).toList(),
         ),
         const SizedBox(height: 20),
         _buildFilterTitle('Date Range'),
@@ -593,7 +622,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                         : 'Select date range',
                     style: TextStyle(
                       fontSize: 14,
-                      color: _startDate != null ? Colors.grey.shade800 : Colors.grey.shade500,
+                      color:
+                          _startDate != null
+                              ? Colors.grey.shade800
+                              : Colors.grey.shade500,
                     ),
                   ),
                 ),
@@ -619,7 +651,12 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
           runSpacing: 8,
           children: [
             _buildSortChip('None', 'none', Icons.clear, isTimeSort: true),
-            _buildSortChip('Latest', 'latest', Icons.access_time, isTimeSort: true),
+            _buildSortChip(
+              'Latest',
+              'latest',
+              Icons.access_time,
+              isTimeSort: true,
+            ),
             _buildSortChip('Oldest', 'oldest', Icons.history, isTimeSort: true),
           ],
         ),
@@ -631,7 +668,12 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
           runSpacing: 8,
           children: [
             _buildSortChip('None', 'none', Icons.clear, isTimeSort: false),
-            _buildSortChip('A-Z', 'a-z', Icons.sort_by_alpha, isTimeSort: false),
+            _buildSortChip(
+              'A-Z',
+              'a-z',
+              Icons.sort_by_alpha,
+              isTimeSort: false,
+            ),
             _buildSortChip('Z-A', 'z-a', Icons.sort, isTimeSort: false),
           ],
         ),
@@ -650,14 +692,24 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
     );
   }
 
-  Widget _buildSortChip(String label, String value, IconData icon, {required bool isTimeSort}) {
-    final isSelected = isTimeSort ? _timeSortOption == value : _alphaSortOption == value;
+  Widget _buildSortChip(
+    String label,
+    String value,
+    IconData icon, {
+    required bool isTimeSort,
+  }) {
+    final isSelected =
+        isTimeSort ? _timeSortOption == value : _alphaSortOption == value;
 
     return ChoiceChip(
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: isSelected ? Colors.white : Colors.grey.shade700),
+          Icon(
+            icon,
+            size: 16,
+            color: isSelected ? Colors.white : Colors.grey.shade700,
+          ),
           const SizedBox(width: 6),
           Text(
             label,
@@ -822,7 +874,8 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
         children: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed: _currentPage > 1 ? () => _goToPage(_currentPage - 1) : null,
+            onPressed:
+                _currentPage > 1 ? () => _goToPage(_currentPage - 1) : null,
             color: Colors.indigo.shade700,
           ),
           const SizedBox(width: 8),
@@ -830,9 +883,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            onPressed: _currentPage < _totalPages
-                ? () => _goToPage(_currentPage + 1)
-                : null,
+            onPressed:
+                _currentPage < _totalPages
+                    ? () => _goToPage(_currentPage + 1)
+                    : null,
             color: Colors.indigo.shade700,
           ),
         ],
@@ -848,7 +902,9 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
     if (start > 1) {
       pageButtons.add(_buildPageButton(1));
       if (start > 2) {
-        pageButtons.add(Text('...', style: TextStyle(color: Colors.grey.shade600)));
+        pageButtons.add(
+          Text('...', style: TextStyle(color: Colors.grey.shade600)),
+        );
       }
     }
 
@@ -858,7 +914,9 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
 
     if (end < _totalPages) {
       if (end < _totalPages - 1) {
-        pageButtons.add(Text('...', style: TextStyle(color: Colors.grey.shade600)));
+        pageButtons.add(
+          Text('...', style: TextStyle(color: Colors.grey.shade600)),
+        );
       }
       pageButtons.add(_buildPageButton(_totalPages));
     }
@@ -880,7 +938,8 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
             color: isCurrentPage ? Colors.indigo.shade700 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isCurrentPage ? Colors.indigo.shade700 : Colors.grey.shade300,
+              color:
+                  isCurrentPage ? Colors.indigo.shade700 : Colors.grey.shade300,
             ),
           ),
           child: Center(
@@ -900,7 +959,8 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
 
   Widget _buildResultCard(_SearchResultItem item) {
     final isLost = item.reportType == 'lost';
-    final Color accentColor = isLost ? Colors.blue.shade600 : Colors.orange.shade600;
+    final Color accentColor =
+        isLost ? Colors.blue.shade600 : Colors.orange.shade600;
     final Color bgColor = isLost ? Colors.blue.shade50 : Colors.orange.shade50;
 
     return Card(
@@ -913,14 +973,16 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => LostItemReportPage(reportId: item.reportId),
+                builder:
+                    (context) => LostItemReportPage(reportId: item.reportId),
               ),
             );
           } else {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => FoundItemReportPage(reportId: item.reportId),
+                builder:
+                    (context) => FoundItemReportPage(reportId: item.reportId),
               ),
             );
           }
@@ -936,13 +998,19 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                   width: 60,
                   height: 60,
                   color: Colors.grey.shade100,
-                  child: item.thumbnailBytes != null
-                      ? Image.memory(item.thumbnailBytes!, fit: BoxFit.cover)
-                      : Icon(
-                    isLost ? Icons.search_off : Icons.inventory_2_outlined,
-                    size: 28,
-                    color: Colors.grey.shade400,
-                  ),
+                  child:
+                      item.thumbnailBytes != null
+                          ? Image.memory(
+                            item.thumbnailBytes!,
+                            fit: BoxFit.cover,
+                          )
+                          : Icon(
+                            isLost
+                                ? Icons.search_off
+                                : Icons.inventory_2_outlined,
+                            size: 28,
+                            color: Colors.grey.shade400,
+                          ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -951,7 +1019,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: bgColor,
                         borderRadius: BorderRadius.circular(4),
@@ -979,11 +1050,18 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.category_outlined, size: 14, color: Colors.grey.shade600),
+                        Icon(
+                          Icons.category_outlined,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           item.category,
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ],
                     ),
@@ -991,11 +1069,18 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.access_time, size: 14, color: Colors.grey.shade600),
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             DateFormat('MMM dd, yyyy').format(item.createdAt!),
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                         ],
                       ),
