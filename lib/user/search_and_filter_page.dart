@@ -39,7 +39,10 @@ class _SearchAndFilterPageState extends State<SearchAndFilterPage> {
     'Documents',
     'Keys',
     'Bags',
-    'Cards',
+    'Books',
+    'Wallets',
+    'Phones',
+    'Laptops',
     'Others',
   ];
 

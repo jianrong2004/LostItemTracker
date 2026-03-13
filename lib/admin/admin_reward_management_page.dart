@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Admin page to manage claimable rewards (vouchers).
@@ -315,6 +316,7 @@ class _RewardFormDialog extends StatelessWidget {
                   hintText: 'e.g. 50',
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 8),
               TextField(
@@ -324,6 +326,7 @@ class _RewardFormDialog extends StatelessWidget {
                   hintText: 'e.g. 30',
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               if (isActive != null && onActiveChanged != null) ...[
                 const SizedBox(height: 12),
@@ -339,7 +342,40 @@ class _RewardFormDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
+        TextButton(
+          onPressed: () {
+            final name = nameController.text.trim();
+            final points = pointsController.text.trim();
+            final days = validityDaysController.text.trim();
+
+            if (name.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Name is required')),
+              );
+              return;
+            }
+            if (!RegExp(r'^[A-Za-z0-9\\s]+$').hasMatch(name)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Name must contain letters, numbers and spaces only')),
+              );
+              return;
+            }
+            if (points.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(points)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Required points must be digits only')),
+              );
+              return;
+            }
+            if (days.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(days)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Valid days must be digits only')),
+              );
+              return;
+            }
+            Navigator.pop(context, true);
+          },
+          child: const Text('Save'),
+        ),
       ],
     );
   }

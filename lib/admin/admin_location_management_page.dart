@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -400,6 +401,7 @@ class _DeskFormDialogState extends State<_DeskFormDialog> {
                 controller: widget.contactController,
                 decoration: const InputDecoration(labelText: 'Contact'),
                 keyboardType: TextInputType.phone,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 8),
               TextField(
@@ -478,7 +480,53 @@ class _DeskFormDialogState extends State<_DeskFormDialog> {
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
+        TextButton(
+          onPressed: () {
+            final name = widget.nameController.text.trim();
+            final contact = widget.contactController.text.trim();
+            final colorHex = widget.colorController.text.trim();
+
+            if (name.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Name is required')),
+              );
+              return;
+            }
+            if (!RegExp(r'^[A-Za-z0-9\\s]+$').hasMatch(name)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Name must contain letters, numbers and spaces only')),
+              );
+              return;
+            }
+            if (contact.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Contact is required')),
+              );
+              return;
+            }
+            if (!RegExp(r'^[0-9]+$').hasMatch(contact)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Contact must contain digits only')),
+              );
+              return;
+            }
+            if (colorHex.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Color hex is required')),
+              );
+              return;
+            }
+            if (!RegExp(r'^#?[0-9A-Fa-f]{6}$').hasMatch(colorHex)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Color hex must be a 6-digit hex value like #3F51B5')),
+              );
+              return;
+            }
+
+            Navigator.pop(context, true);
+          },
+          child: const Text('Save'),
+        ),
       ],
     );
   }

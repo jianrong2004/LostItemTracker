@@ -147,23 +147,72 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                 TextFormField(
                                   controller: _fullNameController,
                                   decoration: const InputDecoration(labelText: 'Full name'),
+                                  textCapitalization: TextCapitalization.words,
+                                  validator: (value) {
+                                    final v = value?.trim() ?? '';
+                                    if (v.isEmpty) {
+                                      return 'Full name is required';
+                                    }
+                                    if (!RegExp(r'^[A-Za-z\s]+$').hasMatch(v)) {
+                                      return 'Full name must contain letters and spaces only';
+                                    }
+                                    if (v.length < 3) {
+                                      return 'Full name must be at least 3 characters';
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _emailController,
                                   decoration: const InputDecoration(labelText: 'Email'),
                                   keyboardType: TextInputType.emailAddress,
+                                  validator: (value) {
+                                    final v = value?.trim() ?? '';
+                                    if (v.isEmpty) {
+                                      return 'Email is required';
+                                    }
+                                    const pattern =
+                                        r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$';
+                                    if (!RegExp(pattern).hasMatch(v)) {
+                                      return 'Please enter a valid email address';
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _phoneController,
                                   decoration: const InputDecoration(labelText: 'Phone'),
                                   keyboardType: TextInputType.phone,
+                                  validator: (value) {
+                                    final v = value?.trim() ?? '';
+                                    if (v.isEmpty) {
+                                      return 'Phone number is required';
+                                    }
+                                    if (!RegExp(r'^[0-9]+$').hasMatch(v)) {
+                                      return 'Phone number must contain digits only';
+                                    }
+                                    if (v.length < 8) {
+                                      return 'Phone number is too short';
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _campusIdController,
                                   decoration: const InputDecoration(labelText: 'Campus ID'),
+                                  validator: (value) {
+                                    final v = value?.trim() ?? '';
+                                    if (v.isEmpty) {
+                                      return 'Campus ID is required';
+                                    }
+                                    if (!RegExp(r'^[A-Za-z0-9]+$').hasMatch(v)) {
+                                      return 'Campus ID must be letters and numbers only';
+                                    }
+                                    return null;
+                                  },
                                 ),
                                 const SizedBox(height: 16),
                                 SizedBox(
