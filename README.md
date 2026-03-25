@@ -26,11 +26,11 @@ A Flutter mobile application for reporting and tracking lost and found items on 
 
 - **Item Management** — View, manage, and moderate lost and found reports
 - **Claim Verification** — Verify and approve/reject claim submissions
-- **Category Management** — Manage item categories used in reports
 - **Location Management** — Manage campus locations for reporting
 - **Reward Management** — Configure rewards and voucher rules
-- **Reports & Analytics** — System-wide analytics and dashboards
-- **Export Report** — Export data (e.g. CSV) for external use
+- **Reports & Analytics** — System-wide analytics with category bars, lost-vs-found ratio, daily trends, and high-frequency locations/desks
+- **In-Analytics Export** — Export filtered analytics data to PDF/CSV directly from the analytics page
+- **Admin Access Management** — Manage admin account access control
 
 ---
 
@@ -149,13 +149,16 @@ lib/
 └── admin/
     ├── admin_home_page.dart
     ├── admin_login_page.dart
+    ├── admin_register_page.dart
     ├── admin_item_management_page.dart
+    ├── admin_item_detail_page.dart
     ├── admin_claim_verification_page.dart
-    ├── admin_category_management_page.dart
     ├── admin_location_management_page.dart
     ├── admin_reward_management_page.dart
     ├── admin_reports_analytics_page.dart
     ├── admin_report_export_page.dart
+    ├── admin_access_management_page.dart
+    ├── admin_theme.dart              # Shared admin visual theme tokens
     └── admin_profile_page.dart
 ```
 
