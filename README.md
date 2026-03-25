@@ -167,10 +167,8 @@ lib/
 ## Supported platforms
 
 - **Android** (minSdk 23)
-- **iOS**
 - **Web**
 - **Windows**
-- **macOS**  
   Linux is not supported by the default Firebase configuration.
 
 ---
