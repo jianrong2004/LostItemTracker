@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'admin_item_detail_page.dart';
 import '../user/lost_item_reporting_page.dart';
 import '../user/found_item_reporting_page.dart';
+import 'admin_theme.dart';
 
 class AdminItemManagementPage extends StatefulWidget {
   const AdminItemManagementPage({super.key});
@@ -65,10 +66,12 @@ class _AdminItemManagementPageState extends State<AdminItemManagementPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Item Management'),
-        backgroundColor: Colors.indigo.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
@@ -111,7 +114,7 @@ class _AdminItemManagementPageState extends State<AdminItemManagementPage>
         onPressed: () => _showAddOptions(context),
         icon: const Icon(Icons.add),
         label: const Text('Add Item'),
-        backgroundColor: Colors.indigo.shade700,
+        backgroundColor: AdminTheme.accent,
       ),
     );
   }

@@ -8,9 +8,10 @@ import 'admin_item_detail_page.dart';
 import 'admin_claim_verification_page.dart';
 import 'admin_location_management_page.dart';
 import 'admin_reports_analytics_page.dart';
-import 'admin_report_export_page.dart';
 import 'admin_profile_page.dart';
 import 'admin_reward_management_page.dart';
+import 'admin_access_management_page.dart';
+import 'admin_theme.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -50,6 +51,7 @@ class _AdminHomePageState extends State<AdminHomePage>
   List<_AdminRecentItem> _recentLostItems = [];
   bool _isLoadingRecent = false;
   bool _recentError = false;
+  bool _isSuperAdmin = false;
 
   Uint8List? _convertPhotoBytes(dynamic data) {
     if (data == null) return null;
@@ -85,6 +87,15 @@ class _AdminHomePageState extends State<AdminHomePage>
         if (userDoc.exists) {
           setState(() {
             fullName = userDoc.get('fullName') ?? 'Admin';
+            final userData = userDoc.data() as Map<String, dynamic>;
+            final email =
+                (userData['email'] ?? currentUser?.email ?? '').toString().toLowerCase();
+            final name = (userData['fullName'] ?? '').toString().toLowerCase();
+            final role = (userData['role'] ?? '').toString().toLowerCase();
+            _isSuperAdmin = role == 'super_admin' ||
+                email == 'myphone' ||
+                email.startsWith('myphone@') ||
+                name == 'myphone';
           });
         }
       } catch (e) {
@@ -216,15 +227,18 @@ class _AdminHomePageState extends State<AdminHomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
+        elevation: 0,
         title: Row(
           children: [
             Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                color: Colors.white.withOpacity(0.95),
+                boxShadow: AdminTheme.cardShadow,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
@@ -237,19 +251,24 @@ class _AdminHomePageState extends State<AdminHomePage>
             const SizedBox(width: 15),
             const Expanded(
               child: Text(
-                'Admin Dashboard',
-                style: TextStyle(fontSize: 20),
+                'Admin Console',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.2,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
             onPressed: () => _scaffoldKey.currentState?.openDrawer(),
           ),
           const SizedBox(width: 8),
@@ -257,11 +276,13 @@ class _AdminHomePageState extends State<AdminHomePage>
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
+          unselectedLabelColor: Colors.white.withOpacity(0.65),
+          indicatorColor: AdminTheme.accent,
+          indicatorWeight: 3,
+          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
           tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
-            Tab(icon: Icon(Icons.settings), text: 'Management'),
+            Tab(icon: Icon(Icons.dashboard_outlined, size: 22), text: 'Overview'),
+            Tab(icon: Icon(Icons.grid_view_rounded, size: 22), text: 'Management'),
           ],
         ),
       ),
@@ -310,58 +331,73 @@ class _AdminHomePageState extends State<AdminHomePage>
                 // Welcome Section
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.blue.shade700,
-                        Colors.blue.shade500,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
+                    gradient: AdminTheme.headerGradient,
+                    borderRadius: BorderRadius.circular(AdminTheme.radiusL),
+                    boxShadow: AdminTheme.cardShadow,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Welcome, Admin!',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Signed in',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white.withOpacity(0.95),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        fullName ?? 'Loading...',
-                        style: const TextStyle(
-                          fontSize: 16,
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Welcome back',
+                        style: TextStyle(
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                          color: Colors.white70,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        currentUser?.email ?? 'admin@example.com',
+                        fullName ?? 'Loading...',
                         style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        currentUser?.email ?? 'admin@example.com',
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white70,
+                          color: Colors.white.withOpacity(0.85),
                         ),
                       ),
                     ],
                   ),
-                ),
+),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 28),
 
-                // Statistics Section
+                Text('Overview', style: AdminTheme.sectionTitle()),
+                const SizedBox(height: 4),
                 Text(
-                  'Statistics',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade800,
-                  ),
+                  'Key metrics at a glance',
+                  style: TextStyle(fontSize: 13, color: AdminTheme.textSecondary),
                 ),
 
                 const SizedBox(height: 16),
@@ -373,8 +409,8 @@ class _AdminHomePageState extends State<AdminHomePage>
                       child: _buildStatCard(
                         title: 'Lost Items',
                         value: _totalLostItems.toString(),
-                        icon: Icons.search_off,
-                        color: Colors.red.shade400,
+                        icon: Icons.search_off_rounded,
+                        accent: AdminTheme.statLost,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -382,8 +418,8 @@ class _AdminHomePageState extends State<AdminHomePage>
                       child: _buildStatCard(
                         title: 'Found Items',
                         value: _totalFoundItems.toString(),
-                        icon: Icons.search,
-                        color: Colors.green.shade400,
+                        icon: Icons.inventory_2_outlined,
+                        accent: AdminTheme.statFound,
                       ),
                     ),
                   ],
@@ -397,8 +433,8 @@ class _AdminHomePageState extends State<AdminHomePage>
                       child: _buildStatCard(
                         title: 'Total Users',
                         value: _totalUsers.toString(),
-                        icon: Icons.people,
-                        color: Colors.blue.shade400,
+                        icon: Icons.people_outline_rounded,
+                        accent: AdminTheme.statUsers,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -406,33 +442,37 @@ class _AdminHomePageState extends State<AdminHomePage>
                       child: _buildStatCard(
                         title: 'Resolved',
                         value: _resolvedItems.toString(),
-                        icon: Icons.check_circle,
-                        color: Colors.orange.shade400,
+                        icon: Icons.check_circle_outline_rounded,
+                        accent: AdminTheme.statResolved,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 28),
 
                 // Recent Activity (Latest Lost Items)
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade600.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AdminTheme.primary.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(Icons.history, size: 20, color: Colors.blue.shade600),
+                      child: Icon(Icons.history_rounded, size: 20, color: AdminTheme.primary),
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Recent Lost Items',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade800,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Recent lost items', style: AdminTheme.sectionTitle()),
+                          Text(
+                            'Latest submissions from users',
+                            style: TextStyle(fontSize: 12, color: AdminTheme.textSecondary),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -454,7 +494,7 @@ class _AdminHomePageState extends State<AdminHomePage>
       return SizedBox(
         height: 200,
         child: Center(
-          child: CircularProgressIndicator(color: Colors.blue.shade700),
+          child: CircularProgressIndicator(color: AdminTheme.primary),
         ),
       );
     }
@@ -552,18 +592,7 @@ class _AdminHomePageState extends State<AdminHomePage>
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: 160,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade200,
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-            border: Border.all(color: Colors.grey.shade200),
-          ),
+          decoration: AdminTheme.cardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -598,7 +627,7 @@ class _AdminHomePageState extends State<AdminHomePage>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
+                        color: AdminTheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -606,17 +635,17 @@ class _AdminHomePageState extends State<AdminHomePage>
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Colors.blue.shade600,
+                          color: AdminTheme.primary,
                         ),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       item.itemName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: AdminTheme.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -624,7 +653,7 @@ class _AdminHomePageState extends State<AdminHomePage>
                     if (item.category.isNotEmpty)
                       Text(
                         item.category,
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                        style: const TextStyle(fontSize: 11, color: AdminTheme.textSecondary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -655,22 +684,23 @@ class _AdminHomePageState extends State<AdminHomePage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text('Tools', style: AdminTheme.sectionTitle()),
+              const SizedBox(height: 4),
               Text(
-                'Management',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
+                'Operations, data & exports',
+                style: TextStyle(fontSize: 13, color: AdminTheme.textSecondary),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+              Text('OPERATIONS', style: AdminTheme.sectionGroupLabel()),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: _buildActionCard(
                       icon: Icons.inventory_2_outlined,
-                      title: 'Item Management',
-                      color: Colors.indigo.shade400,
+                      title: 'Items',
+                      subtitle: 'Lost & found',
+                      color: AdminTheme.primary,
                       onTap: () => Navigator.push(context,
                           MaterialPageRoute(builder: (_) => const AdminItemManagementPage())),
                     ),
@@ -679,8 +709,9 @@ class _AdminHomePageState extends State<AdminHomePage>
                   Expanded(
                     child: _buildActionCard(
                       icon: Icons.verified_user_outlined,
-                      title: 'Claim Verification',
-                      color: Colors.orange.shade400,
+                      title: 'Claims',
+                      subtitle: 'Verification',
+                      color: AdminTheme.accent,
                       onTap: () => Navigator.push(context,
                           MaterialPageRoute(builder: (_) => const AdminClaimVerificationPage())),
                     ),
@@ -693,8 +724,9 @@ class _AdminHomePageState extends State<AdminHomePage>
                   Expanded(
                     child: _buildActionCard(
                       icon: Icons.place_outlined,
-                      title: 'Location Management',
-                      color: Colors.green.shade400,
+                      title: 'Locations',
+                      subtitle: 'Drop-off desks',
+                      color: const Color(0xFF0F766E),
                       onTap: () => Navigator.push(context,
                           MaterialPageRoute(builder: (_) => const AdminLocationManagementPage())),
                     ),
@@ -703,37 +735,27 @@ class _AdminHomePageState extends State<AdminHomePage>
                   Expanded(
                     child: _buildActionCard(
                       icon: Icons.card_giftcard,
-                      title: 'Reward Management',
-                      color: Colors.amber.shade600,
+                      title: 'Rewards',
+                      subtitle: 'Vouchers',
+                      color: const Color(0xFFB45309),
                       onTap: () => Navigator.push(context,
                           MaterialPageRoute(builder: (_) => const AdminRewardManagementPage())),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+              Text('INSIGHTS', style: AdminTheme.sectionGroupLabel()),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      icon: Icons.analytics_outlined,
-                      title: 'Reports & Analytics',
-                      color: Colors.purple.shade400,
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const AdminReportsAnalyticsPage())),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildActionCard(
-                      icon: Icons.download_outlined,
-                      title: 'Export Report',
-                      color: Colors.blue.shade400,
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const AdminReportExportPage())),
-                    ),
-                  ),
-                ],
+              _buildActionCard(
+                icon: Icons.analytics_outlined,
+                title: 'Analytics',
+                subtitle: 'Reports, charts & export',
+                color: const Color(0xFF6D28D9),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdminReportsAnalyticsPage()),
+                ),
               ),
               const SizedBox(height: 20),
             ],
@@ -746,7 +768,7 @@ class _AdminHomePageState extends State<AdminHomePage>
   Widget _buildAccountDrawer() {
     return Drawer(
       child: Container(
-        color: Colors.white,
+        color: AdminTheme.cardSurface,
         child: Column(
           children: [
             // Admin Info Header
@@ -754,14 +776,7 @@ class _AdminHomePageState extends State<AdminHomePage>
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.blue.shade700,
-                    Colors.blue.shade500,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: AdminTheme.headerGradient,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -770,9 +785,9 @@ class _AdminHomePageState extends State<AdminHomePage>
                     radius: 40,
                     backgroundColor: Colors.white,
                     child: Icon(
-                      Icons.admin_panel_settings,
-                      size: 50,
-                      color: Colors.blue.shade700,
+                      Icons.admin_panel_settings_rounded,
+                      size: 44,
+                      color: AdminTheme.primary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -815,8 +830,12 @@ class _AdminHomePageState extends State<AdminHomePage>
             // Menu Items
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                    child: Text('ACCOUNT', style: AdminTheme.sectionGroupLabel()),
+                  ),
                   _buildDrawerMenuItem(
                     icon: Icons.person_outline,
                     title: 'Profile',
@@ -826,9 +845,14 @@ class _AdminHomePageState extends State<AdminHomePage>
                     },
                   ),
                   _buildDrawerMenuItem(
-                    icon: Icons.dashboard,
+                    icon: Icons.dashboard_outlined,
                     title: 'Dashboard',
                     onTap: () => Navigator.pop(context),
+                  ),
+                  const Divider(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+                    child: Text('MODULES', style: AdminTheme.sectionGroupLabel()),
                   ),
                   _buildDrawerMenuItem(
                     icon: Icons.inventory_2_outlined,
@@ -870,14 +894,20 @@ class _AdminHomePageState extends State<AdminHomePage>
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReportsAnalyticsPage()));
                     },
                   ),
-                  _buildDrawerMenuItem(
-                    icon: Icons.download_outlined,
-                    title: 'Export Report',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminReportExportPage()));
-                    },
-                  ),
+                  if (_isSuperAdmin)
+                    _buildDrawerMenuItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: 'Admin Access',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminAccessManagementPage(),
+                          ),
+                        );
+                      },
+                    ),
                 ],
               ),
             ),
@@ -886,8 +916,9 @@ class _AdminHomePageState extends State<AdminHomePage>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
+                color: AdminTheme.scaffoldBackground,
                 border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+                  top: BorderSide(color: AdminTheme.border),
                 ),
               ),
               child: SizedBox(
@@ -921,18 +952,19 @@ class _AdminHomePageState extends State<AdminHomePage>
     return ListTile(
       leading: Icon(
         icon,
-        color: Colors.blue.shade700,
-        size: 26,
+        color: AdminTheme.primary,
+        size: 24,
       ),
       title: Text(
         title,
         style: const TextStyle(
-          fontSize: 16,
+          fontSize: 15,
           fontWeight: FontWeight.w500,
         ),
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
     );
   }
 
@@ -940,43 +972,63 @@ class _AdminHomePageState extends State<AdminHomePage>
     required String title,
     required String value,
     required IconData icon,
-    required Color color,
+    required Color accent,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.3),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AdminTheme.radiusM),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: accent),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AdminTheme.cardSurface,
+                  border: const Border(
+                    top: BorderSide(color: AdminTheme.border),
+                    right: BorderSide(color: AdminTheme.border),
+                    bottom: BorderSide(color: AdminTheme.border),
+                  ),
+                  boxShadow: AdminTheme.cardShadow,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: accent.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, size: 22, color: accent),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: AdminTheme.textPrimary,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AdminTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            size: 32,
-            color: color,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -984,39 +1036,48 @@ class _AdminHomePageState extends State<AdminHomePage>
   Widget _buildActionCard({
     required IconData icon,
     required String title,
+    required String subtitle,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 40,
-              color: color,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AdminTheme.radiusM),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: AdminTheme.cardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 26, color: color),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 14),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AdminTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AdminTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

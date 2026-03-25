@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../user/lost_item_claim.dart';
+import 'admin_theme.dart';
 
 class AdminItemDetailPage extends StatefulWidget {
   final String type;
@@ -133,10 +134,12 @@ class _AdminItemDetailPageState extends State<AdminItemDetailPage> {
     }
 
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: Text('${widget.type == 'lost' ? 'Lost' : 'Found'} Item Detail'),
-        backgroundColor: widget.type == 'lost' ? Colors.red.shade700 : Colors.green.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),

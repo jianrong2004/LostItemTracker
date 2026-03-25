@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_theme.dart';
 
 /// Admin page to manage claimable rewards (vouchers).
 /// Uses Firestore collection [vouchers] with: name, description, requiredPoints, validityDays, isActive.
@@ -175,10 +176,12 @@ class _AdminRewardManagementPageState extends State<AdminRewardManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Reward Management'),
-        backgroundColor: Colors.amber.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance

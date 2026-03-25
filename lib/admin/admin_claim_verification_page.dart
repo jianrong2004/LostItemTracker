@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../user/lost_item_claim.dart';
+import 'admin_theme.dart';
 
 class AdminClaimVerificationPage extends StatefulWidget {
   const AdminClaimVerificationPage({super.key});
@@ -15,10 +16,12 @@ class _AdminClaimVerificationPageState extends State<AdminClaimVerificationPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Claim Verification'),
-        backgroundColor: Colors.orange.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance

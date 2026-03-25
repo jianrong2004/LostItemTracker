@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'admin_theme.dart';
 
 // TARUMT campus (Setapak) - same as user maps
 const LatLng _tarumtCampusCenter = LatLng(3.2158, 101.7306);
@@ -227,10 +228,12 @@ class _AdminLocationManagementPageState extends State<AdminLocationManagementPag
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Location Management'),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('dropOffDesks').snapshots(),
@@ -565,8 +568,9 @@ class _FullScreenMapPickerState extends State<_FullScreenMapPicker> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select location (TARUMT campus)'),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           TextButton(
             onPressed: _confirm,

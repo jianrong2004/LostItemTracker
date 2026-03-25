@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'admin_register_page.dart';
 import 'admin_home_page.dart';
+import 'admin_theme.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -65,7 +65,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
           }
 
           String role = userDoc.get('role') ?? 'user';
-          if (role != 'admin') {
+          if (role != 'admin' && role != 'super_admin') {
             // User is not an admin
             await FirebaseAuth.instance.signOut();
             if (!mounted) return;
@@ -195,10 +195,12 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Admin Login'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -211,9 +213,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 const SizedBox(height: 40),
 
                 Icon(
-                  Icons.admin_panel_settings,
+                  Icons.admin_panel_settings_rounded,
                   size: 80,
-                  color: Colors.blue.shade700,
+                  color: AdminTheme.primary,
                 ),
 
                 const SizedBox(height: 20),
@@ -223,7 +225,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade900,
+                    color: AdminTheme.primary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -295,7 +297,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
+                      backgroundColor: AdminTheme.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -320,34 +322,14 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   ),
                 ),
 
-                // Register link
                 const SizedBox(height: 20),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Don\'t have an account? ',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AdminRegisterPage(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Register',
-                        style: TextStyle(
-                          color: Colors.blue.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Admin registration is restricted by super admin.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),

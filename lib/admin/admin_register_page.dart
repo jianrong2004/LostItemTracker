@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'admin_login_page.dart';
 import '../user/email_verification_page.dart';
+import 'admin_theme.dart';
 
 class AdminRegisterPage extends StatefulWidget {
   const AdminRegisterPage({super.key});
@@ -165,10 +166,12 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Admin Registration'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -180,7 +183,7 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
               children: [
                 const SizedBox(height: 40),
 
-                Icon(Icons.person_add, size: 80, color: Colors.blue.shade700),
+                Icon(Icons.person_add_rounded, size: 80, color: AdminTheme.primary),
 
                 const SizedBox(height: 20),
 
@@ -189,7 +192,7 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade900,
+                    color: AdminTheme.primary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -314,7 +317,7 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleRegister,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
+                      backgroundColor: AdminTheme.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -361,7 +364,7 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
                       child: Text(
                         'Login',
                         style: TextStyle(
-                          color: Colors.blue.shade700,
+                          color: AdminTheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

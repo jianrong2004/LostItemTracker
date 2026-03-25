@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:downloadsfolder/downloadsfolder.dart' as downloads;
 import 'dart:io';
+import 'admin_theme.dart';
 
 class AdminReportExportPage extends StatefulWidget {
   final DateTime? startDate;
@@ -192,10 +193,12 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Export Report'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -222,7 +225,7 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
                           onPressed: _downloadPdf,
                           icon: const Icon(Icons.picture_as_pdf),
                           label: const Text('Download PDF'),
-                          style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700, padding: const EdgeInsets.symmetric(vertical: 16)),
+                          style: FilledButton.styleFrom(backgroundColor: AdminTheme.statLost, padding: const EdgeInsets.symmetric(vertical: 16)),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -231,7 +234,7 @@ ${total == 0 ? 'No activity in this period.' : 'Total reports in period: $total.
                           onPressed: _downloadCsv,
                           icon: const Icon(Icons.table_chart),
                           label: const Text('Download CSV'),
-                          style: FilledButton.styleFrom(backgroundColor: Colors.green.shade700, padding: const EdgeInsets.symmetric(vertical: 16)),
+                          style: FilledButton.styleFrom(backgroundColor: AdminTheme.statFound, padding: const EdgeInsets.symmetric(vertical: 16)),
                         ),
                       ),
                     ],

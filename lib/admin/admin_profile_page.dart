@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin_theme.dart';
 
 class AdminProfilePage extends StatefulWidget {
   const AdminProfilePage({super.key});
@@ -95,10 +96,12 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   Widget build(BuildContext context) {
     final u = _user;
     return Scaffold(
+      backgroundColor: AdminTheme.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Profile'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AdminTheme.primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -115,8 +118,8 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                             children: [
                               CircleAvatar(
                                 radius: 30,
-                                backgroundColor: Colors.blue.shade50,
-                                child: Icon(Icons.person, color: Colors.blue.shade700, size: 32),
+                                backgroundColor: AdminTheme.primary.withOpacity(0.12),
+                                child: Icon(Icons.person_rounded, color: AdminTheme.primary, size: 32),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -228,7 +231,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
                                         : const Icon(Icons.save),
                                     label: const Text('Save'),
                                     style: FilledButton.styleFrom(
-                                      backgroundColor: Colors.blue.shade700,
+                                      backgroundColor: AdminTheme.primary,
                                       padding: const EdgeInsets.symmetric(vertical: 14),
                                     ),
                                   ),
