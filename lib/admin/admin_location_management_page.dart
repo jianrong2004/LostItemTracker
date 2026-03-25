@@ -438,8 +438,9 @@ class _DeskFormDialogState extends State<_DeskFormDialog> {
                       ),
                       children: [
                         TileLayer(
-                          urlTemplate: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.lostitemtracker.lost_item_tracker_client',
+                          maxZoom: 19,
                         ),
                         MarkerLayer(
                           markers: [
@@ -597,8 +598,9 @@ class _FullScreenMapPickerState extends State<_FullScreenMapPicker> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.lostitemtracker.lost_item_tracker_client',
+                maxZoom: 19,
               ),
               MarkerLayer(
                 markers: [
