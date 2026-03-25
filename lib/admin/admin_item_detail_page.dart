@@ -134,6 +134,40 @@ class _AdminItemDetailPageState extends State<AdminItemDetailPage> {
     }
   }
 
+  Future<void> _updateItemReturnStatus(String newStatus) async {
+    setState(() => _loading = true);
+    try {
+      final col = widget.type == 'lost' ? 'lost_item_reports' : 'found_item_reports';
+      await FirebaseFirestore.instance
+          .collection(col)
+          .doc(widget.reportId)
+          .update({
+        'itemReturnStatus': newStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        setState(() {
+          _data['itemReturnStatus'] = newStatus;
+          _loading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Return status updated'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   String _formatDateTime(dynamic t) {
     if (t == null) return 'N/A';
     if (t is Timestamp) return DateFormat.yMd().add_Hm().format(t.toDate());
@@ -197,6 +231,37 @@ class _AdminItemDetailPageState extends State<AdminItemDetailPage> {
                       _row('Item name', _data['itemName'] ?? 'N/A'),
                       _row('Category', _data['category'] ?? 'N/A'),
                       _row('Description', _data['itemDescription'] ?? 'N/A'),
+                      _dropdownRow(
+                        'Item return status',
+                        DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          value: (_data['itemReturnStatus'] ?? 'pending').toString(),
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            border: InputBorder.none,
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'pending',
+                              child: Text('pending'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'claimed',
+                              child: Text('Claimed (for found report)'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'returned',
+                              child: Text('Returned (for lost report)'),
+                            ),
+                          ],
+                          onChanged: _loading
+                              ? null
+                              : (v) {
+                            if (v == null) return;
+                            _updateItemReturnStatus(v);
+                          },
+                        ),
+                      ),
                       _row('Status', _data['reportStatus'] ?? 'N/A'),
                     ]),
                     if (widget.type == 'lost') ...[
@@ -356,6 +421,25 @@ class _AdminItemDetailPageState extends State<AdminItemDetailPage> {
             ),
           ),
           Expanded(child: Text(value, style: const TextStyle(fontSize: 14))),
+        ],
+      ),
+    );
+  }
+
+  Widget _dropdownRow(String label, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+          ),
+          Expanded(child: child),
         ],
       ),
     );
