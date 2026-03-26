@@ -75,9 +75,15 @@ class _AdminRewardManagementPageState extends State<AdminRewardManagementPage> {
   Future<void> _saveVoucher(String? id, {bool? isActive}) async {
     final points = int.tryParse(_pointsController.text.trim()) ?? 0;
     final validityDays = int.tryParse(_validityDaysController.text.trim()) ?? 30;
-    if (points < 0) {
+    if (points < 0 || points > 100) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Required points must be ≥ 0'), backgroundColor: Colors.orange),
+        const SnackBar(content: Text('Required points must be between 0 and 100'), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+    if (validityDays < 1 || validityDays > 30) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Valid days must be between 1 and 30'), backgroundColor: Colors.orange),
       );
       return;
     }
@@ -86,7 +92,7 @@ class _AdminRewardManagementPageState extends State<AdminRewardManagementPage> {
         'name': _nameController.text.trim(),
         'description': _descController.text.trim(),
         'requiredPoints': points,
-        'validityDays': validityDays.clamp(1, 365),
+        'validityDays': validityDays.clamp(1, 30),
         'updatedAt': FieldValue.serverTimestamp(),
       };
       if (isActive != null) {
@@ -271,7 +277,7 @@ class _AdminRewardManagementPageState extends State<AdminRewardManagementPage> {
   }
 }
 
-class _RewardFormDialog extends StatelessWidget {
+class _RewardFormDialog extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController descController;
   final TextEditingController pointsController;
@@ -291,92 +297,106 @@ class _RewardFormDialog extends StatelessWidget {
   });
 
   @override
+  State<_RewardFormDialog> createState() => _RewardFormDialogState();
+}
+
+class _RewardFormDialogState extends State<_RewardFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+
+  String? _validateName(String? v) {
+    final name = (v ?? '').trim();
+    if (name.isEmpty) return 'Name is required';
+    return null;
+  }
+
+  String? _validatePoints(String? v) {
+    final raw = (v ?? '').trim();
+    if (raw.isEmpty) return 'Required points is required';
+    final n = int.tryParse(raw);
+    if (n == null) return 'Required points must be a number';
+    if (n < 0 || n > 100) return 'Required points must be between 0 and 100';
+    return null;
+  }
+
+  String? _validateDays(String? v) {
+    final raw = (v ?? '').trim();
+    if (raw.isEmpty) return 'Valid days is required';
+    final n = int.tryParse(raw);
+    if (n == null) return 'Valid days must be a number';
+    if (n < 1 || n > 30) return 'Valid days must be between 1 and 30';
+    return null;
+  }
+
+  void _submit() {
+    final ok = _formKey.currentState?.validate() ?? false;
+    if (!ok) return;
+    Navigator.pop(context, true);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
+      title: Text(widget.title),
       content: SingleChildScrollView(
         child: SizedBox(
           width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name *'),
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: descController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: pointsController,
-                decoration: const InputDecoration(
-                  labelText: 'Required points',
-                  hintText: 'e.g. 50',
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: widget.nameController,
+                  decoration: const InputDecoration(labelText: 'Name *'),
+                  textCapitalization: TextCapitalization.words,
+                  validator: _validateName,
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: validityDaysController,
-                decoration: const InputDecoration(
-                  labelText: 'Valid for (days)',
-                  hintText: 'e.g. 30',
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: widget.descController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 2,
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              if (isActive != null && onActiveChanged != null) ...[
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: const Text('Visible in store (users can claim)'),
-                  value: isActive!,
-                  onChanged: onActiveChanged,
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: widget.pointsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Required points (0-100)',
+                    hintText: 'e.g. 50',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: _validatePoints,
                 ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: widget.validityDaysController,
+                  decoration: const InputDecoration(
+                    labelText: 'Valid for (days) (1-30)',
+                    hintText: 'e.g. 30',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: _validateDays,
+                ),
+                if (widget.isActive != null && widget.onActiveChanged != null) ...[
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    title: const Text('Visible in store (users can claim)'),
+                    value: widget.isActive!,
+                    onChanged: widget.onActiveChanged,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
         TextButton(
-          onPressed: () {
-            final name = nameController.text.trim();
-            final points = pointsController.text.trim();
-            final days = validityDaysController.text.trim();
-
-            if (name.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Name is required')),
-              );
-              return;
-            }
-            if (!RegExp(r'^[A-Za-z0-9\\s]+$').hasMatch(name)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Name must contain letters, numbers and spaces only')),
-              );
-              return;
-            }
-            if (points.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(points)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Required points must be digits only')),
-              );
-              return;
-            }
-            if (days.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(days)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Valid days must be digits only')),
-              );
-              return;
-            }
-            Navigator.pop(context, true);
-          },
+          onPressed: _submit,
           child: const Text('Save'),
         ),
       ],
